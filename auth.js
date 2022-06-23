@@ -1,8 +1,10 @@
 const express = require("express");
 const argon2 = require("argon2");
 const mysql = require("mysql2");
+const jwt = require("jsonwebtoken");
 const router = express.Router();
 
+const jwtKey = "secret";
 const pool = mysql.createPool({
   host: process.env.HOST,
   database: process.env.DATABASE,
@@ -110,7 +112,11 @@ router.post("/login", (req, res) => {
             return;
           }
 
-          res.send({ message: "Login Successful", data: result2[0] });
+          const token = jwt.sign({ user: result2[0] }, jwtKey, {
+            expiresIn: "1h",
+          });
+
+          res.send({ message: "Login Successful", data: token });
         }
       );
     }
