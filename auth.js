@@ -123,4 +123,23 @@ router.post("/login", (req, res) => {
   );
 });
 
-module.exports = router;
+const authorize = (req, res, next) => {
+  const auth = req.headers.authorization;
+  // auth header = "Bearer ejy...................."
+  if (!auth) {
+    res.status(401).send({ message: "Missing Token", data: null });
+    return;
+  }
+
+  const token = auth.substr(7, auth.length);
+
+  try {
+    jwt.verify(token, jwtKey);
+    next();
+  } catch (err) {
+    console.error(err);
+    res.status(401).send({ message: "Invalid Token", data: null });
+  }
+};
+
+module.exports = { authorize, router };
